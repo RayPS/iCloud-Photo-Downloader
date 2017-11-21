@@ -25,8 +25,15 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        fetchAssets()
-        print("\n")
+        generate_204 { success in
+            if success {
+                self.fetchAssets()
+            } else {
+                self.button.setTitle("Network Error", for: .normal)
+                self.button.alpha = 0.1
+                self.button.isUserInteractionEnabled = false
+            }
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -132,10 +139,7 @@ class ViewController: UIViewController {
             currentIndex += 1
             requestAssets(byIndex: currentIndex)
         } else {
-            let alert = UIAlertController(title: "Done", message: "All photos & videos are downloaded to your device.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            present(alert, animated: true, completion: {
-            })
+            simpleAlert(title: "Done", message: "All photos & videos are downloaded to your device.")
         }
         print("\n")
     }
@@ -148,3 +152,24 @@ class ViewController: UIViewController {
     }
 }
 
+
+extension ViewController {
+
+    func generate_204(_ handler: @escaping (_ success: Bool) -> Void) {
+        if let url = URL(string: "http://captive.apple.com/generate_204") {
+            URLSession.shared.dataTask(with: url) {
+                (data, response, error) in
+                print("generate_204: ", "error == \(error)\n")
+                handler(error == nil)
+            }.resume()
+        }
+    }
+
+
+    func simpleAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: {
+        })
+    }
+}
