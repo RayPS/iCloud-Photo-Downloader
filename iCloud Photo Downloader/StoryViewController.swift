@@ -25,6 +25,12 @@ class StoryViewController: UIViewController {
         return true
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        UIView.animate(withDuration: 0.2) {
+            self.scrollView.alpha = 0
+        }
+    }
+
     @IBAction func closeButtonTapped(_ sender: Any) {
         Haptic.impact(.medium).generate()
         dismiss(animated: true, completion: nil)
