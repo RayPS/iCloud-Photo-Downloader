@@ -12,6 +12,7 @@
 		7175C6481FC3330700D14D90 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7175C6461FC3330700D14D90 /* Main.storyboard */; };
 		7175C64A1FC3330700D14D90 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7175C6491FC3330700D14D90 /* Assets.xcassets */; };
 		7175C64D1FC3330700D14D90 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7175C64B1FC3330700D14D90 /* LaunchScreen.storyboard */; };
+		71AA573A1FC3E6C4007ADB69 /* StoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71AA57391FC3E6C4007ADB69 /* StoryViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		7175C6491FC3330700D14D90 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7175C64C1FC3330700D14D90 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7175C64E1FC3330700D14D90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		71AA57391FC3E6C4007ADB69 /* StoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 				7175C6441FC3330700D14D90 /* ViewController.swift */,
 				7175C6461FC3330700D14D90 /* Main.storyboard */,
 				7175C6491FC3330700D14D90 /* Assets.xcassets */,
+				71AA57391FC3E6C4007ADB69 /* StoryViewController.swift */,
 				7175C64B1FC3330700D14D90 /* LaunchScreen.storyboard */,
 				7175C64E1FC3330700D14D90 /* Info.plist */,
 			);
@@ -136,6 +139,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				71AA573A1FC3E6C4007ADB69 /* StoryViewController.swift in Sources */,
 				7175C6451FC3330700D14D90 /* ViewController.swift in Sources */,
 				7175C6431FC3330700D14D90 /* AppDelegate.swift in Sources */,
 			);
