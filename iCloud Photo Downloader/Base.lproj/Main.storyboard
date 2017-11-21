@@ -50,7 +50,7 @@
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="0%" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hxI-O3-Jlt">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="0/0" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hxI-O3-Jlt">
                                                         <rect key="frame" x="114" y="0.0" width="197" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
@@ -142,7 +142,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                 <state key="normal" title="The Story Behind This App  ›"/>
                                 <connections>
-                                    <segue destination="2fu-PR-Qtm" kind="show" id="jBl-yd-qF9"/>
+                                    <action selector="storyButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wwk-CK-6VV"/>
                                 </connections>
                             </button>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" image="Banner" translatesAutoresizingMaskIntoConstraints="NO" id="hp0-aj-uGC">
@@ -177,11 +177,12 @@
                     <connections>
                         <outlet property="button" destination="OIz-dF-78c" id="Lj6-kP-Mz0"/>
                         <outlet property="downloadLabel" destination="No2-Fa-Kxj" id="aCR-1g-ggE"/>
-                        <outlet property="downloadProgress" destination="7e6-7D-Lmw" id="hKF-pG-aNd"/>
+                        <outlet property="downloadProgressBar" destination="7e6-7D-Lmw" id="tU4-0W-qkT"/>
                         <outlet property="imageView" destination="hp0-aj-uGC" id="c0l-wA-qf0"/>
                         <outlet property="itemTypeLabel" destination="Yde-ht-o56" id="6og-jU-lug"/>
                         <outlet property="totalLabel" destination="hxI-O3-Jlt" id="bX5-0g-DtC"/>
-                        <outlet property="totalProgress" destination="dsK-ey-mTM" id="SM0-Yz-h95"/>
+                        <outlet property="totalProgressBar" destination="dsK-ey-mTM" id="B27-a2-u8j"/>
+                        <segue destination="2fu-PR-Qtm" kind="show" identifier="StoryViewControllerSegue" id="cl3-Ll-QQ6"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -262,7 +263,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Mfr-8B-e8W" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="765.60000000000002" y="33.733133433283363"/>
+            <point key="canvasLocation" x="881" y="34"/>
         </scene>
     </scenes>
     <resources>

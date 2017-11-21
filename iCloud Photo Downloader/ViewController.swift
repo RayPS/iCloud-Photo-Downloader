@@ -13,35 +13,113 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var button: UIButton!
-    @IBOutlet weak var totalProgress: UIProgressView!
-    @IBOutlet weak var downloadProgress: UIProgressView!
+    @IBOutlet weak var totalProgressBar: UIProgressView!
+    @IBOutlet weak var downloadProgressBar: UIProgressView!
     @IBOutlet weak var totalLabel: UILabel!
     @IBOutlet weak var downloadLabel: UILabel!
     @IBOutlet weak var itemTypeLabel: UILabel!
 
+    let manager = PHImageManager.default()
     var assets = [PHAsset]()
-    var currentIndex = -1
+    var currentRequestID: PHImageRequestID!
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        generate_204 { success in
-            if success {
-                self.fetchAssets()
-            } else {
-                self.button.setTitle("Network Error", for: .normal)
-                self.button.alpha = 0.1
-                self.button.isUserInteractionEnabled = false
+    var currentIndex: Int = 0 {
+        didSet {
+            if (currentIndex >= 0) && (currentIndex <= assets.count) {
+                requestAssets()
+            } else if currentIndex > assets.count {
+                simpleAlert(title: "Done", message: "All photos & videos is downloaded to your device.")
             }
         }
     }
 
+    enum RequestState {
+        case stopped
+        case downloading
+    }
+
+    var currentRequestState: RequestState = .stopped {
+        didSet {
+            switch currentRequestState {
+            case .stopped: // Stop
+                manager.cancelImageRequest(currentRequestID)
+                totalProgress = 0
+                itemProgress = 0
+                DispatchQueue.main.async {
+                    self.button.setTitle("Start", for: .normal)
+                    self.button.backgroundColor = UIColor(named: "iOS_Blue")
+                }
+            case .downloading: // Start
+                currentIndex = 0
+                DispatchQueue.main.async {
+                    self.button.setTitle("Stop", for: .normal)
+                    self.button.backgroundColor = .lightGray
+                }
+            }
+        }
+    }
+
+
+    var totalProgress: Float = 0.0 {
+        didSet {
+            DispatchQueue.main.async {
+                self.totalLabel.text = String(format: "%d/%d", self.currentIndex, self.assets.count)
+                self.totalProgressBar.setProgress(self.totalProgress, animated: true)
+                self.itemTypeLabel.text = {
+                    let typeDict: [PHAssetMediaType: String] = [
+                        .image: "Image",
+                        .video: "Video"
+                    ]
+                    return typeDict[self.assets[self.currentIndex].mediaType]
+                }()
+            }
+        }
+    }
+
+
+    var itemProgress: Float = 0.0 {
+        didSet {
+            DispatchQueue.main.async {
+                self.downloadLabel.text = String(format: "%.0f%%", self.itemProgress * 100)
+                self.downloadProgressBar.setProgress(self.itemProgress, animated: false)
+            }
+        }
+    }
+
+
+
+
+
+
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
+        fetchAssets()
+
+        generate_204(
+        success: {
+        },
+        failure: {
+            self.simpleAlert(title: "Network Error", message: "No internet conections. Please check your settings.") })
+    }
+
     override func viewWillAppear(_ animated: Bool) {
-        totalProgress.setProgress(0, animated: false)
-        downloadProgress.setProgress(0, animated: false)
+        totalProgressBar.setProgress(0, animated: false)
+        downloadProgressBar.setProgress(0, animated: false)
         button.layer.cornerRadius = 8
         button.clipsToBounds = true
     }
+
+
+
+
+
+
+
+
+
+
 
     func fetchAssets() {
         let fetchOptions = PHFetchOptions()
@@ -62,105 +140,99 @@ class ViewController: UIViewController {
     }
 
 
-    func requestAssets(byIndex index: Int!) {
 
-        func setTotalProgress() {
-            DispatchQueue.main.async {
-                self.totalLabel.text = String(format: "%d/%d", index, self.assets.count)
-                self.totalProgress.setProgress(Float(index) / Float(self.assets.count), animated: true)
-                self.itemTypeLabel.text = {
-                    let typeDict: [PHAssetMediaType: String] = [
-                        .image: "Image",
-                        .video: "Video"
-                    ]
-                    return typeDict[self.assets[index].mediaType]
-                }()
+
+    func requestAssets() {
+
+        totalProgress = Float(currentIndex) / Float(assets.count)
+
+        switch assets[currentIndex].mediaType {
+        case .image:
+            let requestOptions = PHImageRequestOptions()
+            requestOptions.resizeMode = .exact
+            requestOptions.deliveryMode = .highQualityFormat
+            requestOptions.isNetworkAccessAllowed = true
+            requestOptions.progressHandler = { (progress, _, _, _) in
+                self.itemProgress = Float(progress)
             }
+
+            currentRequestID = manager.requestImageData(for: assets[currentIndex], options: requestOptions) {
+                (data, str, orientation, info) in
+                printCurrentItemInfo(info)
+                self.currentIndex += 1
+
+            }
+        case .video:
+            let requestOptions = PHVideoRequestOptions()
+            requestOptions.deliveryMode = .highQualityFormat
+            requestOptions.isNetworkAccessAllowed = true
+            requestOptions.progressHandler = { (progress, _, _, _) in
+                self.itemProgress = Float(progress)
+            }
+
+            currentRequestID = manager.requestAVAsset(forVideo: assets[currentIndex], options: requestOptions) {
+                (asset, audioMix, info) in
+                printCurrentItemInfo(info)
+                self.currentIndex += 1
+            }
+
+        default:
+            break
         }
 
-        func setDownloadProgress(_ progress: Double) {
-            DispatchQueue.main.async {
-                self.downloadLabel.text = String(format: "%.0f%%", progress * 100)
-                self.downloadProgress.setProgress(Float(progress), animated: false)
-            }
-        }
+
 
         func printCurrentItemInfo(_ info: [AnyHashable : Any]?) {
-            print("Current index: \(self.currentIndex)/\(self.assets.count)")
+            print("\nCurrent index: \(self.currentIndex)/\(self.assets.count)")
             if let info = info {
                 for (key, value) in info {
                     print(key, " ", value)
                 }
             }
         }
-
-
-
-
-        setTotalProgress()
-
-        let manager = PHImageManager.default()
-        switch assets[index].mediaType {
-        case .image:
-            let requestOptions = PHImageRequestOptions()
-            requestOptions.resizeMode = .exact
-            requestOptions.deliveryMode = .highQualityFormat
-            requestOptions.isNetworkAccessAllowed = true
-            requestOptions.progressHandler = { (progress, error, stop, info) in
-                setDownloadProgress(progress)
-            }
-
-            manager.requestImageData(for: assets[index], options: requestOptions) {
-                (data, str, orientation, info) in
-                printCurrentItemInfo(info)
-                self.queueNextItem()
-            }
-        case .video:
-            let requestOptions = PHVideoRequestOptions()
-            requestOptions.deliveryMode = .highQualityFormat
-            requestOptions.isNetworkAccessAllowed = true
-            requestOptions.progressHandler = { (progress, error, stop, info) in
-                setDownloadProgress(progress)
-            }
-
-            manager.requestAVAsset(forVideo: assets[index], options: requestOptions) {
-                (asset, audioMix, info) in
-                printCurrentItemInfo(info)
-                self.queueNextItem()
-            }
-
-        default:
-            break
-        }
     }
 
-    func queueNextItem() {
-        if currentIndex < assets.count {
-            currentIndex += 1
-            requestAssets(byIndex: currentIndex)
-        } else {
-            simpleAlert(title: "Done", message: "All photos & videos are downloaded to your device.")
-        }
-        print("\n")
-    }
+
+
+
 
     @IBAction func buttonTapped(_ sender: Any) {
         Haptic.impact(.medium).generate()
-        self.button.alpha = 0.1
-        self.button.isUserInteractionEnabled = false
-        queueNextItem()
+
+        generate_204(
+            success: {
+                switch self.currentRequestState {
+                case .stopped: self.currentRequestState = .downloading
+                case .downloading: self.currentRequestState = .stopped
+                }
+            },
+            failure: {
+                self.simpleAlert(title: "Network Error", message: "No internet conections. Please check your settings.")
+            })
+    }
+
+    @IBAction func storyButtonTapped(_ sender: Any) {
+        Haptic.impact(.medium).generate()
+        performSegue(withIdentifier: "StoryViewControllerSegue", sender: self)
     }
 }
 
 
 extension ViewController {
 
-    func generate_204(_ handler: @escaping (_ success: Bool) -> Void) {
+    func generate_204( // Network Condition
+        success: @escaping () -> Void,
+        failure: @escaping () -> Void
+        ) {
         if let url = URL(string: "http://captive.apple.com/generate_204") {
             URLSession.shared.dataTask(with: url) {
                 (data, response, error) in
-                print("generate_204: ", "error == \(error)\n")
-                handler(error == nil)
+                print("generate_204: ", "error == \(String(describing: error))\n")
+                if error == nil {
+                    success()
+                } else {
+                    failure()
+                }
             }.resume()
         }
     }

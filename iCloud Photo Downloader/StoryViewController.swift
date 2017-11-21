@@ -16,13 +16,16 @@ class StoryViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        scrollView.clipsToBounds = false
-        rateButton.clipsToBounds = false
-        rateButton.layer.cornerRadius = 8
     }
 
     override var prefersStatusBarHidden: Bool {
         return true
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        scrollView.clipsToBounds = false
+        rateButton.clipsToBounds = false
+        rateButton.layer.cornerRadius = 8
     }
 
     override func viewWillDisappear(_ animated: Bool) {
