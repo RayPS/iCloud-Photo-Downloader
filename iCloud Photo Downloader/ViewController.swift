@@ -75,10 +75,6 @@ class ViewController: UIViewController {
             DispatchQueue.main.async {
                 self.downloadLabel.text = String(format: "%.0f%%", progress * 100)
                 self.downloadProgress.setProgress(Float(progress), animated: false)
-//                let isDownloading = progress < 1.0
-                let isDownloading = index != self.assets.count
-                self.button.alpha = isDownloading ? 0.25 : 1
-                self.button.isUserInteractionEnabled = isDownloading ? false : true
             }
         }
 
@@ -111,8 +107,6 @@ class ViewController: UIViewController {
                 (data, str, orientation, info) in
                 printCurrentItemInfo(info)
                 self.queueNextItem()
-//                self.imageView.backgroundColor = .black
-//                self.imageView.image = UIImage(data: data!)
             }
         case .video:
             let requestOptions = PHVideoRequestOptions()
@@ -140,43 +134,9 @@ class ViewController: UIViewController {
     }
 
     @IBAction func buttonTapped(_ sender: Any) {
-        if totalProgress.progress == 1.0 {
-            currentIndex = -1
-        }
+        self.button.alpha = 0.25
+        self.button.isUserInteractionEnabled = false
         queueNextItem()
     }
 }
 
-
-
-
-
-extension ViewController {
-
-    override func motionBegan(_ motion: UIEventSubtype, with event: UIEvent?) {
-        if motion == .motionShake {
-            let alert = UIAlertController(title: "Enter a number", message: nil, preferredStyle: .alert)
-            alert.addTextField { (textField) in
-                textField.text = String(self.currentIndex)
-                textField.clearsOnBeginEditing = true
-                textField.keyboardType = .numberPad
-            }
-            let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            let ok = UIAlertAction(title: "OK", style: .default, handler: { _ in
-                let textField = alert.textFields!.first
-                if let number = Int(textField!.text!) {
-                    self.currentIndex = number - 1
-                    self.requestAssets(byIndex: self.currentIndex)
-                    print("\n")
-                }
-            })
-            alert.addAction(cancel)
-            alert.addAction(ok)
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
-
-    override var prefersStatusBarHidden: Bool {
-        return false
-    }
-}
