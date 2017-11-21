@@ -128,13 +128,20 @@ class ViewController: UIViewController {
     }
 
     func queueNextItem() {
-        currentIndex += 1
-        requestAssets(byIndex: currentIndex)
+        if currentIndex < assets.count {
+            currentIndex += 1
+            requestAssets(byIndex: currentIndex)
+        } else {
+            let alert = UIAlertController(title: "Done", message: "All photos & videos are downloaded to your device.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            present(alert, animated: true, completion: {
+            })
+        }
         print("\n")
     }
 
     @IBAction func buttonTapped(_ sender: Any) {
-        self.button.alpha = 0.25
+        self.button.alpha = 0.1
         self.button.isUserInteractionEnabled = false
         queueNextItem()
     }
