@@ -141,6 +141,7 @@ class ViewController: UIViewController {
     }
 
     @IBAction func buttonTapped(_ sender: Any) {
+        Haptic.impact(.medium).generate()
         self.button.alpha = 0.1
         self.button.isUserInteractionEnabled = false
         queueNextItem()

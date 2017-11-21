@@ -26,6 +26,7 @@ class StoryViewController: UIViewController {
     }
 
     @IBAction func closeButtonTapped(_ sender: Any) {
+        Haptic.impact(.medium).generate()
         dismiss(animated: true, completion: nil)
     }
 
