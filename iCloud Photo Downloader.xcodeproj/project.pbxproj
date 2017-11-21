@@ -13,7 +13,6 @@
 		7175C64A1FC3330700D14D90 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7175C6491FC3330700D14D90 /* Assets.xcassets */; };
 		7175C64D1FC3330700D14D90 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7175C64B1FC3330700D14D90 /* LaunchScreen.storyboard */; };
 		71AA573A1FC3E6C4007ADB69 /* StoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71AA57391FC3E6C4007ADB69 /* StoryViewController.swift */; };
-		71AA573C1FC3FE9A007ADB69 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71AA573B1FC3FE9A007ADB69 /* Reachability.swift */; };
 		71AA573E1FC3FEC4007ADB69 /* Haptic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71AA573D1FC3FEC4007ADB69 /* Haptic.swift */; };
 /* End PBXBuildFile section */
 
@@ -26,7 +25,6 @@
 		7175C64C1FC3330700D14D90 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7175C64E1FC3330700D14D90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		71AA57391FC3E6C4007ADB69 /* StoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewController.swift; sourceTree = "<group>"; };
-		71AA573B1FC3FE9A007ADB69 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		71AA573D1FC3FEC4007ADB69 /* Haptic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptic.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -63,7 +61,6 @@
 				7175C6421FC3330700D14D90 /* AppDelegate.swift */,
 				7175C6441FC3330700D14D90 /* ViewController.swift */,
 				71AA57391FC3E6C4007ADB69 /* StoryViewController.swift */,
-				71AA573B1FC3FE9A007ADB69 /* Reachability.swift */,
 				71AA573D1FC3FEC4007ADB69 /* Haptic.swift */,
 				7175C6461FC3330700D14D90 /* Main.storyboard */,
 				7175C6491FC3330700D14D90 /* Assets.xcassets */,
@@ -148,7 +145,6 @@
 				71AA573A1FC3E6C4007ADB69 /* StoryViewController.swift in Sources */,
 				71AA573E1FC3FEC4007ADB69 /* Haptic.swift in Sources */,
 				7175C6451FC3330700D14D90 /* ViewController.swift in Sources */,
-				71AA573C1FC3FE9A007ADB69 /* Reachability.swift in Sources */,
 				7175C6431FC3330700D14D90 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
