@@ -17,18 +17,40 @@ class ViewController: UIViewController {
     @IBOutlet weak var downloadProgressBar: UIProgressView!
     @IBOutlet weak var totalLabel: UILabel!
     @IBOutlet weak var downloadLabel: UILabel!
-    @IBOutlet weak var itemTypeLabel: UILabel!
+    @IBOutlet weak var infomationLabel: UILabel!
 
     let manager = PHImageManager.default()
-    var assets = [PHAsset]()
-    var currentRequestID: PHImageRequestID!
+    var currentRequestID: PHImageRequestID! {
+        willSet {
+            print("----- Will set currentRequestID: ", newValue)
+        }
+    }
 
-    var currentIndex: Int = 0 {
+    var assets = [PHAsset]() {
+        didSet { print("----- Assets Collected, Count: \(assets.count)") }
+    }
+
+    var currentIndex: Int = -1 {
         didSet {
-            if (currentIndex >= 0) && (currentIndex <= assets.count) {
-                requestAssets()
-            } else if currentIndex > assets.count {
+            switch currentIndex {
+            case 0...assets.count:
+                requestAssets { info in
+                    print("\nCurrent index requested: \(self.currentIndex)/\(self.assets.count)")
+                    DispatchQueue.main.async {
+                        if let info = info {
+                            let pathURL = info["PHImageFileURLKey"] as! NSURL?
+                            let pathStr: String = pathURL?.absoluteString! ?? "..."
+//                            let itemType = String(describing: self.assets[self.currentIndex].mediaType)
+                            self.infomationLabel.text = pathStr
+                        }
+                        self.totalProgress = Float(self.currentIndex) / Float(self.assets.count)
+                    }
+                    self.currentIndex += 1
+                }
+            case let i where i > assets.count:
                 simpleAlert(title: "Done", message: "All photos & videos is downloaded to your device.")
+            default:
+                currentIndex = 0
             }
         }
     }
@@ -36,13 +58,17 @@ class ViewController: UIViewController {
     enum RequestState {
         case stopped
         case downloading
+        case disabled
     }
 
     var currentRequestState: RequestState = .stopped {
         didSet {
             switch currentRequestState {
             case .stopped: // Stop
-                manager.cancelImageRequest(currentRequestID)
+                if oldValue == .downloading {
+                    manager.cancelImageRequest(currentRequestID)
+                    infomationLabel.text = "Stopped"
+                }
                 totalProgress = 0
                 itemProgress = 0
                 DispatchQueue.main.async {
@@ -55,6 +81,11 @@ class ViewController: UIViewController {
                     self.button.setTitle("Stop", for: .normal)
                     self.button.backgroundColor = .lightGray
                 }
+            case .disabled:
+                DispatchQueue.main.async {
+                    self.button.setTitle("Start", for: .normal)
+                    self.button.backgroundColor = .lightGray
+                }
             }
         }
     }
@@ -65,13 +96,6 @@ class ViewController: UIViewController {
             DispatchQueue.main.async {
                 self.totalLabel.text = String(format: "%d/%d", self.currentIndex, self.assets.count)
                 self.totalProgressBar.setProgress(self.totalProgress, animated: true)
-                self.itemTypeLabel.text = {
-                    let typeDict: [PHAssetMediaType: String] = [
-                        .image: "Image",
-                        .video: "Video"
-                    ]
-                    return typeDict[self.assets[self.currentIndex].mediaType]
-                }()
             }
         }
     }
@@ -95,13 +119,22 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        fetchAssets()
+        grantPhotoAccess {
+            self.fetchAssets()
+        }
 
         generate_204(
         success: {
         },
         failure: {
             self.simpleAlert(title: "Network Error", message: "No internet conections. Please check your settings.") })
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(ViewController.resigningActive),
+            name: NSNotification.Name.UIApplicationWillResignActive,
+            object: nil
+        )
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -133,18 +166,18 @@ class ViewController: UIViewController {
             PHAssetMediaType.video.rawValue
         )
 
+        var fectedObjects = [PHAsset]()
         let fetcher = PHAsset.fetchAssets(with: fetchOptions)
         fetcher.enumerateObjects({ (object, count, stop) in
-            self.assets.append(object)
+            fectedObjects.append(object)
         })
+        self.assets = fectedObjects
     }
 
 
 
 
-    func requestAssets() {
-
-        totalProgress = Float(currentIndex) / Float(assets.count)
+    func requestAssets(completion: @escaping (_ info: [AnyHashable : Any]?) -> Void) {
 
         switch assets[currentIndex].mediaType {
         case .image:
@@ -152,45 +185,33 @@ class ViewController: UIViewController {
             requestOptions.resizeMode = .exact
             requestOptions.deliveryMode = .highQualityFormat
             requestOptions.isNetworkAccessAllowed = true
-            requestOptions.progressHandler = { (progress, _, _, _) in
+            requestOptions.progressHandler = { (progress, error, stop, info) in
                 self.itemProgress = Float(progress)
             }
 
             currentRequestID = manager.requestImageData(for: assets[currentIndex], options: requestOptions) {
                 (data, str, orientation, info) in
-                printCurrentItemInfo(info)
-                self.currentIndex += 1
-
+                completion(info)
             }
         case .video:
             let requestOptions = PHVideoRequestOptions()
             requestOptions.deliveryMode = .highQualityFormat
             requestOptions.isNetworkAccessAllowed = true
-            requestOptions.progressHandler = { (progress, _, _, _) in
+            requestOptions.progressHandler = { (progress, error, stop, info) in
                 self.itemProgress = Float(progress)
             }
 
             currentRequestID = manager.requestAVAsset(forVideo: assets[currentIndex], options: requestOptions) {
                 (asset, audioMix, info) in
-                printCurrentItemInfo(info)
-                self.currentIndex += 1
+                completion(info)
             }
 
         default:
-            break
-        }
-
-
-
-        func printCurrentItemInfo(_ info: [AnyHashable : Any]?) {
-            print("\nCurrent index: \(self.currentIndex)/\(self.assets.count)")
-            if let info = info {
-                for (key, value) in info {
-                    print(key, " ", value)
-                }
-            }
+            completion(nil)
         }
     }
+
+
 
 
 
@@ -204,6 +225,7 @@ class ViewController: UIViewController {
                 switch self.currentRequestState {
                 case .stopped: self.currentRequestState = .downloading
                 case .downloading: self.currentRequestState = .stopped
+                case .disabled: self.grantPhotoAccess {}
                 }
             },
             failure: {
@@ -215,19 +237,25 @@ class ViewController: UIViewController {
         Haptic.impact(.medium).generate()
         performSegue(withIdentifier: "StoryViewControllerSegue", sender: self)
     }
+
+
+    @IBAction func addButtonTapped(_ sender: Any) {
+        currentIndex += 1
+    }
 }
 
 
 extension ViewController {
 
-    func generate_204( // Network Condition
+    /// Network Condition
+    func generate_204(
         success: @escaping () -> Void,
         failure: @escaping () -> Void
         ) {
         if let url = URL(string: "http://captive.apple.com/generate_204") {
             URLSession.shared.dataTask(with: url) {
                 (data, response, error) in
-                print("generate_204: ", "error == \(String(describing: error))\n")
+                print("----- generate_204: ", error ?? "No Error")
                 if error == nil {
                     success()
                 } else {
@@ -238,10 +266,36 @@ extension ViewController {
     }
 
 
+    func grantPhotoAccess(completion: @escaping () -> Void) {
+        PHPhotoLibrary.requestAuthorization { (status) in
+            switch status {
+            case .notDetermined:
+                print("PHPhotoLibrary.requestAuthorization status is .notDetermined")
+            case .restricted:
+                print("PHPhotoLibrary.requestAuthorization status is .restricted")
+            case .denied:
+                self.currentRequestState = .disabled
+                self.simpleAlert(title: "Access Denied", message: "Photo access for this app is denied, you can change it in System Settings")
+            case .authorized:
+                completion()
+            }
+        }
+
+    }
+
+
     func simpleAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         present(alert, animated: true, completion: {
         })
+    }
+}
+
+
+
+extension ViewController {
+    @objc fileprivate func resigningActive() {
+        currentRequestState = .stopped
     }
 }
