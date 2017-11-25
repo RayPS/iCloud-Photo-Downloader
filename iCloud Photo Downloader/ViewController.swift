@@ -129,12 +129,12 @@ class ViewController: UIViewController {
         failure: {
             self.simpleAlert(title: "Network Error", message: "No internet conections. Please check your settings.") })
 
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(ViewController.resigningActive),
-            name: NSNotification.Name.UIApplicationWillResignActive,
-            object: nil
-        )
+//        NotificationCenter.default.addObserver(
+//            self,
+//            selector: #selector(ViewController.resigningActive),
+//            name: NSNotification.Name.UIApplicationWillResignActive,
+//            object: nil
+//        )
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -289,8 +289,9 @@ extension ViewController {
 
 
 
-extension ViewController {
-    @objc fileprivate func resigningActive() {
-        currentRequestState = .stopped
-    }
-}
+//extension ViewController {
+//    @objc fileprivate func resigningActive() {
+//        currentRequestState = .stopped
+//    }
+//}
+
