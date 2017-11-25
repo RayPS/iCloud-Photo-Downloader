@@ -20,11 +20,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var infomationLabel: UILabel!
 
     let manager = PHImageManager.default()
-    var currentRequestID: PHImageRequestID! {
-        willSet {
-            print("----- Will set currentRequestID: ", newValue)
-        }
-    }
+    var currentRequestID: PHImageRequestID!
 
     var assets = [PHAsset]() {
         didSet { print("----- Assets Collected, Count: \(assets.count)") }
