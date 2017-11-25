@@ -237,11 +237,6 @@ class ViewController: UIViewController {
         Haptic.impact(.medium).generate()
         performSegue(withIdentifier: "StoryViewControllerSegue", sender: self)
     }
-
-
-    @IBAction func addButtonTapped(_ sender: Any) {
-        currentIndex += 1
-    }
 }
 
 
