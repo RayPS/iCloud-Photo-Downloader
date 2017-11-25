@@ -33,7 +33,7 @@ class ViewController: UIViewController {
     var currentIndex: Int = -1 {
         didSet {
             switch currentIndex {
-            case 0...assets.count:
+            case 0...assets.count - 1:
                 requestAssets { info in
                     print("\nCurrent index requested: \(self.currentIndex)/\(self.assets.count)")
                     DispatchQueue.main.async {
@@ -47,8 +47,12 @@ class ViewController: UIViewController {
                     }
                     self.currentIndex += 1
                 }
-            case let i where i > assets.count:
+            case assets.count:
                 simpleAlert(title: "Done", message: "All photos & videos is downloaded to your device.")
+                DispatchQueue.main.async {
+                    self.infomationLabel.text = "Finished"
+                }
+                currentRequestState = .stopped
             default:
                 currentIndex = 0
             }
