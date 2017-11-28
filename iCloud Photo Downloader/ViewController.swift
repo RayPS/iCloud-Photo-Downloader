@@ -11,7 +11,6 @@ import Photos
 
 class ViewController: UIViewController {
 
-    @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var button: UIButton!
     @IBOutlet weak var totalProgressBar: UIProgressView!
     @IBOutlet weak var downloadProgressBar: UIProgressView!
@@ -45,10 +44,7 @@ class ViewController: UIViewController {
                 }
             case assets.count:
                 simpleAlert(title: "Done", message: "All photos & videos is fetched to your device.")
-                DispatchQueue.main.async {
-                    self.infomationLabel.text = "Finished"
-                }
-                currentRequestState = .stopped
+                currentRequestState = .finished
             default:
                 currentIndex = 0
             }
@@ -59,6 +55,7 @@ class ViewController: UIViewController {
         case stopped
         case downloading
         case disabled
+        case finished
     }
 
     var currentRequestState: RequestState = .stopped {
@@ -76,6 +73,10 @@ class ViewController: UIViewController {
                     self.button.backgroundColor = UIColor(named: "iOS_Blue")
                 }
             case .downloading: // Start
+                if oldValue == .finished {
+                    totalProgress = 0
+                    itemProgress = 0
+                }
                 currentIndex = 0
                 DispatchQueue.main.async {
                     self.button.setTitle("Stop", for: .normal)
@@ -86,7 +87,14 @@ class ViewController: UIViewController {
                     self.button.setTitle("Start", for: .normal)
                     self.button.backgroundColor = .lightGray
                 }
+            case .finished:
+                infomationLabel.text = "Finished"
+                DispatchQueue.main.async {
+                    self.button.setTitle("Start Again", for: .normal)
+                    self.button.backgroundColor = UIColor(named: "iOS_Blue")
+                }
             }
+
         }
     }
 
@@ -95,7 +103,7 @@ class ViewController: UIViewController {
         didSet {
             DispatchQueue.main.async {
                 self.totalLabel.text = String(format: "%d/%d", self.currentIndex, self.assets.count)
-                self.totalProgressBar.setProgress(self.totalProgress, animated: true)
+                self.totalProgressBar.setProgress(self.totalProgress, animated: false)
             }
         }
     }
@@ -223,7 +231,7 @@ class ViewController: UIViewController {
         generate_204(
             success: {
                 switch self.currentRequestState {
-                case .stopped: self.currentRequestState = .downloading
+                case .stopped, .finished: self.currentRequestState = .downloading
                 case .downloading: self.currentRequestState = .stopped
                 case .disabled: self.grantPhotoAccess {}
                 }
