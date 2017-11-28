@@ -44,7 +44,7 @@ class ViewController: UIViewController {
                     self.currentIndex += 1
                 }
             case assets.count:
-                simpleAlert(title: "Done", message: "All photos & videos is downloaded to your device.")
+                simpleAlert(title: "Done", message: "All photos & videos is fetched to your device.")
                 DispatchQueue.main.async {
                     self.infomationLabel.text = "Finished"
                 }
