@@ -9,3 +9,11 @@
 
 
 ![story](https://github.com/RayPS/iCloud-Photo-Downloader/blob/master/iCloud%20Photo%20Downloader/Assets.xcassets/Story.imageset/Story.png?raw=true)
+
+---
+
+<img src="https://github.com/RayPS/iCloud-Photo-Downloader/blob/master/Screen%20Shot%202019-02-23%20at%2010.42.28.png?raw=true" width="250px">
+
+This app has been rejected by Apple due to the app name, app icon and the story.
+
+You can build this app to your iPhone with Xcode.
